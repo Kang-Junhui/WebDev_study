@@ -1,17 +1,24 @@
 # Django 게시판 프로젝트
 
-간단한 게시판 기능을 제공하는 Django 웹 애플리케이션입니다.
+간단한 게시판 기능을 제공하는 Django 웹 애플리케이션 + REST API
 
 ## 🚀 주요 기능
 
+### 웹 애플리케이션
 - **게시글 작성**: 제목, 작성자, 내용을 입력하여 글 작성
 - **게시글 목록**: 작성된 글들을 최신순으로 조회
 - **반응형 디자인**: 모바일과 데스크톱 환경 모두 지원
 - **관리자 페이지**: Django Admin을 통한 게시글 관리
 
+### REST API ⭐ NEW!
+- **게시글 CRUD API**: 생성, 조회, 수정, 삭제
+- **페이지네이션**: 10개씩 페이지 분할
+- **API 문서**: 자체 문서 페이지 제공
+- **JSON 응답**: 표준 REST API 형태
+
 ## 🛠 기술 스택
 
-- **Backend**: Django 5.2.6
+- **Backend**: Django 5.2.6, Django REST Framework 3.16.1
 - **Database**: PostgreSQL
 - **Frontend**: HTML5, CSS3, Django Templates
 - **Server**: Django Development Server (포트 5008)
@@ -72,7 +79,10 @@ python manage.py createsuperuser
 python manage.py runserver 0.0.0.0:5008
 ```
 
-서버 실행 후 `http://localhost:5008`에서 애플리케이션을 확인할 수 있습니다.
+서버 실행 후 다음 URL에서 확인할 수 있습니다:
+- **웹 애플리케이션**: http://localhost:5008
+- **REST API**: http://localhost:5008/api/
+- **관리자 페이지**: http://localhost:5008/admin
 
 ## 📂 프로젝트 구조
 
@@ -84,33 +94,102 @@ project_survey/
 │   ├── settings.py             # 프로젝트 설정
 │   ├── urls.py                 # URL 라우팅
 │   └── wsgi.py                 # WSGI 설정
-├── board/                      # 게시판 앱
+├── board/                      # 게시판 웹 앱
 │   ├── models.py               # 데이터 모델
-│   ├── views.py                # 뷰 함수
+│   ├── views.py                # 웹 뷰 함수
 │   ├── forms.py                # 폼 클래스
-│   ├── urls.py                 # 앱 URL 설정
+│   ├── urls.py                 # 웹 URL 설정
 │   └── admin.py                # 관리자 설정
+├── api/                        # REST API 앱 ⭐ NEW!
+│   ├── views.py                # API 뷰 클래스
+│   ├── serializers.py          # API 시리얼라이저
+│   └── urls.py                 # API URL 설정
 ├── templates/                  # HTML 템플릿
 │   ├── base.html
 │   └── board/
 │       ├── index.html
 │       └── write.html
-└── static/css/                 # CSS 스타일
-    └── style.css
+├── static/css/                 # CSS 스타일
+│   └── style.css
+├── .github/workflows/          # GitHub Actions CI/CD
+├── deploy.sh                   # 자동 배포 스크립트
+├── webhook_server.py          # GitHub 웹훅 서버
+└── COLLABORATION.md           # 협업 가이드
 ```
 
 ## 🎯 주요 URL
 
+### 웹 애플리케이션
 - **메인 페이지**: `/` - 게시글 목록 조회
 - **글쓰기**: `/write/` - 새 게시글 작성
 - **관리자**: `/admin/` - Django 관리자 페이지
 
-## 🔧 개발 환경
+### REST API
+- **API 문서**: `/api/docs/` - API 사용법 문서
+- **API 상태**: `/api/status/` - API 서버 상태 확인
+- **게시글 목록**: `/api/posts/` - GET (조회), POST (생성)
+- **게시글 상세**: `/api/posts/{id}/` - GET (조회), PUT (수정), DELETE (삭제)
 
-- Python 3.12+
-- Django 5.2.6
-- PostgreSQL 16
-- Ubuntu 24.04
+## 🔧 API 사용 예시
+
+### 1. 게시글 목록 조회
+```bash
+curl http://localhost:5008/api/posts/
+```
+
+### 2. 새 게시글 생성
+```bash
+curl -X POST http://localhost:5008/api/posts/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "API로 작성한 글",
+    "author": "API 사용자",
+    "content": "REST API를 통해 게시글을 생성했습니다."
+  }'
+```
+
+### 3. 특정 게시글 조회
+```bash
+curl http://localhost:5008/api/posts/1/
+```
+
+### 4. 게시글 수정
+```bash
+curl -X PUT http://localhost:5008/api/posts/1/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "수정된 제목",
+    "author": "API 사용자",
+    "content": "수정된 내용입니다."
+  }'
+```
+
+### 5. 게시글 삭제
+```bash
+curl -X DELETE http://localhost:5008/api/posts/1/
+```
+
+## 🔄 협업 및 자동 배포
+
+### Repository 내 Branch 협업 ⭐ 추천 방식
+이 프로젝트는 **fork 없이** repository 내에서 branch를 생성하여 협업하는 방식을 지원합니다:
+
+1. **Feature 브랜치 생성**:
+   ```bash
+   git checkout -b feature/new-api-endpoint
+   git push -u origin feature/new-api-endpoint
+   ```
+
+2. **개발 후 Pull Request 생성**:
+   - GitHub에서 PR 생성
+   - 팀원 코드 리뷰
+
+3. **PR 병합 시 자동 배포**:
+   - main 브랜치로 병합되면 자동으로 서버 배포
+   - GitHub Actions로 테스트 자동 실행
+
+### 자동 배포 설정
+자세한 내용은 [COLLABORATION.md](./COLLABORATION.md) 참조
 
 ## 📝 모델 구조
 
@@ -122,11 +201,12 @@ project_survey/
 
 ## 🤝 기여하기
 
-1. 이 저장소를 포크합니다
+1. Repository를 클론합니다
 2. 새로운 기능 브랜치를 만듭니다 (`git checkout -b feature/AmazingFeature`)
 3. 변경사항을 커밋합니다 (`git commit -m 'Add some AmazingFeature'`)
 4. 브랜치에 푸시합니다 (`git push origin feature/AmazingFeature`)
 5. Pull Request를 생성합니다
+6. 🚀 **PR 병합 시 자동 배포됩니다!**
 
 ## 📄 라이선스
 
