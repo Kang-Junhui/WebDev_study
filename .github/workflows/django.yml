@@ -5,10 +5,13 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+    types: [opened, synchronize, reopened, closed]
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    # PR이 닫혔을 때는 테스트 건너뛰기 (병합시에는 별도 처리)
+    if: github.event.action != 'closed'
     
     services:
       postgres:
@@ -58,17 +61,44 @@ jobs:
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
+  # PR 정보 출력 (디버깅용)
+  pr-info:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+    - name: PR 정보 출력
+      run: |
+        echo "🔄 Pull Request 이벤트 감지"
+        echo "PR 번호: ${{ github.event.number }}"
+        echo "PR 제목: ${{ github.event.pull_request.title }}"
+        echo "작성자: ${{ github.event.pull_request.user.login }}"
+        echo "액션: ${{ github.event.action }}"
+        echo "병합됨: ${{ github.event.pull_request.merged }}"
+        echo "베이스 브랜치: ${{ github.event.pull_request.base.ref }}"
+        echo "소스 브랜치: ${{ github.event.pull_request.head.ref }}"
+
   deploy:
     needs: test
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    # main 브랜치 직접 푸시 또는 main으로 병합된 PR인 경우에만 배포
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true))
     
     steps:
     - uses: actions/checkout@v4
     
-    - name: Deploy notification
+    - name: 배포 알림
       run: |
-        echo "🚀 Django Board application is ready for deployment!"
-        echo "✅ All tests passed"
-        echo "📦 Application can be deployed to your server"
-        echo "🔧 Make sure to run migrations on production server"
+        if [ "${{ github.event_name }}" = "push" ]; then
+          echo "🚀 Direct Push 배포"
+          echo "푸시한 사용자: ${{ github.event.pusher.name }}"
+          echo "커밋 수: ${{ github.event.commits.length }}"
+        elif [ "${{ github.event_name }}" = "pull_request" ]; then
+          echo "🔀 Pull Request 병합 배포"
+          echo "PR 번호: #${{ github.event.number }}"
+          echo "PR 제목: ${{ github.event.pull_request.title }}"
+          echo "작성자: ${{ github.event.pull_request.user.login }}"
+          echo "병합한 사용자: ${{ github.event.pull_request.merged_by.login }}"
+        fi
+        echo "✅ 모든 테스트 통과"
+        echo "📦 애플리케이션 배포 준비 완료"
+        echo "🔧 프로덕션 서버에서 마이그레이션을 실행하세요"
