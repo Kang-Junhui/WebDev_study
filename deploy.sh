@@ -94,20 +94,24 @@ else
     log_message "   실행 중인 Django 프로세스 없음"
 fi
 
+# 환경변수에서 포트 설정 (기본값: 5008)
+DJANGO_PORT=${DJANGO_PORT:-5008}
+DJANGO_HOST=${DJANGO_HOST:-0.0.0.0}
+
 # 서버 재시작
 log_message "🚀 서버 재시작..."
-nohup python manage.py runserver 0.0.0.0:5008 > server.log 2>&1 &
+nohup python manage.py runserver $DJANGO_HOST:$DJANGO_PORT > server.log 2>&1 &
 NEW_PID=$!
 log_message "   새 서버 PID: $NEW_PID"
 
 log_message "✅ Django Board 자동 업데이트 완료!"
-log_message "🌐 서버가 http://localhost:5008 에서 실행 중입니다."
+log_message "🌐 서버가 http://$DJANGO_HOST:$DJANGO_PORT 에서 실행 중입니다."
 
 # 서버 상태 확인 (최대 30초 대기)
 log_message "🔍 서버 상태 확인 중..."
 for i in {1..10}; do
     sleep 3
-    if curl -f -s http://localhost:5008 > /dev/null 2>&1; then
+    if curl -f -s http://localhost:$DJANGO_PORT > /dev/null 2>&1; then
         log_message "✅ 서버가 정상적으로 실행되고 있습니다! (${i}번째 시도에서 성공)"
         
         # 배포 완료 알림
@@ -125,6 +129,6 @@ done
 log_message "❌ 서버 시작에 문제가 있습니다. server.log를 확인하세요."
 log_message "🔧 디버깅 정보:"
 log_message "   Django 프로세스: $(pgrep -f 'python manage.py runserver' || echo 'None')"
-log_message "   포트 5008 상태: $(netstat -tuln | grep :5008 || echo 'Not listening')"
+log_message "   포트 $DJANGO_PORT 상태: $(netstat -tuln | grep :$DJANGO_PORT || echo 'Not listening')"
 
 exit 1
