@@ -25,6 +25,55 @@
 
 ## 📦 설치 및 실행
 
+### Windows 환경에서 실행 (권장)
+
+#### 전제조건
+- Python 3.8 이상이 설치되어 있어야 합니다
+- 외부 데이터베이스 서버 (scjune123.iptime.org:4141)에 접속 가능해야 합니다
+
+#### 자동 설정 및 실행
+
+1. **설정 스크립트 실행**:
+   ```batch
+   # CMD/배치 파일로 실행
+   setup_windows.bat
+   
+   # 또는 PowerShell로 실행
+   .\setup_windows.ps1
+   ```
+
+2. **서버 시작**:
+   ```batch
+   # CMD/배치 파일로 실행
+   start_server.bat
+   
+   # 또는 PowerShell로 실행
+   .\start_server.ps1
+   ```
+
+3. **브라우저에서 접속**:
+   - 로컬: http://localhost:41414
+   - 외부: http://scjune123.iptime.org:41414
+
+### 🚀 다중 사용자 동시 실행
+
+여러 명이 동시에 같은 데이터베이스에 접속하여 작업할 수 있습니다!
+
+```powershell
+# 사용자 1 (기본 포트)
+.\start_server.ps1
+
+# 사용자 2 (다른 포트)
+.\start_server_multiuser.ps1 -Port 41415 -UserName "사용자2"
+
+# 사용자 3 (또 다른 포트)
+.\start_server_multiuser.ps1 -Port 41416 -UserName "사용자3"
+```
+
+📖 **자세한 내용**: [다중 사용자 가이드](MULTIUSER_GUIDE.md) 참조
+
+### Linux/macOS 환경에서 실행
+
 ### 1. 필수 소프트웨어 설치
 
 ```bash
