@@ -1,5 +1,6 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from django.http import JsonResponse
 from .models import Post
 from .forms import PostForm
 
@@ -20,3 +21,12 @@ def write(request):
         form = PostForm()
     
     return render(request, 'board/write.html', {'form': form})
+
+def like_post(request, post_id):
+    """게시글 추천 기능"""
+    if request.method == 'POST':
+        post = get_object_or_404(Post, id=post_id)
+        post.likes_count += 1
+        post.save()
+        return JsonResponse({'likes_count': post.likes_count})
+    return JsonResponse({'error': 'Invalid request'}, status=400)

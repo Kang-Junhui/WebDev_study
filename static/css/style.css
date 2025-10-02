@@ -76,6 +76,26 @@ h1 {
     margin-top: 10px;
 }
 
+.post-actions {
+    margin-top: 15px;
+    text-align: right;
+}
+
+.like-btn {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+.like-btn:hover {
+    background: #c0392b;
+}
+
 /* 글쓰기 폼 스타일 */
 .form-group {
     margin-bottom: 20px;

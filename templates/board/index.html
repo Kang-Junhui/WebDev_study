@@ -17,6 +17,11 @@
                 <div class="post-title">{{ post.title }}</div>
                 <div class="post-meta">작성자: {{ post.author }} | 작성일: {{ post.created_at|date:"Y-m-d H:i" }}</div>
                 <div class="post-content">{{ post.content|linebreaks }}</div>
+                <div class="post-actions">
+                    <button class="like-btn" onclick="likePost({{ post.id }})">
+                        👍 추천 (<span id="likes-{{ post.id }}">{{ post.likes_count }}</span>)
+                    </button>
+                </div>
             </div>
             {% endfor %}
         {% else %}
@@ -24,4 +29,38 @@
         {% endif %}
     </div>
 </div>
+
+<script>
+function likePost(postId) {
+    fetch(`/like/${postId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.likes_count !== undefined) {
+            document.getElementById(`likes-${postId}`).textContent = data.likes_count;
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
 {% endblock %}
