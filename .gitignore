@@ -75,3 +75,52 @@ node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Windows executable files and security
+*.exe
+*.msi
+*.bat
+*.cmd
+*.ps1
+*.vbs
+*.scr
+*.com
+*.pif
+*.application
+*.msp
+*.msm
+
+# Windows sensitive files
+*.ini
+*.inf
+*.reg
+*.cfg
+boot.ini
+ntuser.dat*
+NTUSER.DAT*
+
+# Windows system files
+pagefile.sys
+hiberfil.sys
+swapfile.sys
+$RECYCLE.BIN/
+System Volume Information/
+
+# Credentials and secrets
+*.key
+*.pem
+*.p12
+*.pfx
+*.cer
+*.crt
+credentials.txt
+secrets.txt
+config.ini
+settings.ini
+
+# Temporary and cache files
+*.tmp
+*.temp
+*.cache
+*.pid
+*.lock
